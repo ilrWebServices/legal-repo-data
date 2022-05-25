@@ -65,7 +65,7 @@ foreach ($documents_results as $num => $document) {
   $document->defendantCounsel = [];
 
   $attorney_results = $connection->query(<<<SQL
-  select cfa.firmType, f.firmName, a.attorneyfullName
+  select cfa.firmType, f.firmid, f.firmName, a.attorneyfullName
   from cdFirmAttorney cfa
     inner join firm f on cfa.firmid = f.firmid
     inner join attorney a on cfa.attorneyid = a.attorneyid
@@ -74,10 +74,13 @@ foreach ($documents_results as $num => $document) {
 
   foreach ($attorney_results as $attorney) {
     if ($attorney->firmType === 'Defendant') {
-      $document->defendantCounsel[$attorney->firmName][] = $attorney->attorneyfullName;
+      $document->defendantCounsel[$attorney->firmid]['firmName'] = $attorney->firmName;
+      $document->defendantCounsel[$attorney->firmid]['attorneys'][] = $attorney->attorneyfullName;
     }
     else {
-      $document->plaintiffCounsel[$attorney->firmName][] = $attorney->attorneyfullName;
+      $document->plaintiffCounsel[$attorney->firmid]['firmName'] = $attorney->firmName;
+      $document->plaintiffCounsel[$attorney->firmid]['attorneys'][] = $attorney->attorneyfullName;
+      // $document->plaintiffCounsel[$attorney->firmid][$attorney->firmName] = $attorney->attorneyfullName;
     }
   }
 
